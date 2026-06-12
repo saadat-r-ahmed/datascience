@@ -26,18 +26,18 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-book.txt
 
       - name: Cache Jupyter Book build
         uses: actions/cache@v4
         with:
           path: _build
-          key: jb-${{ hashFiles('**/*.md', '**/*.ipynb', '_config.yml', '_toc.yml') }}
+          key: jb-${{ hashFiles('**/*.md', '**/*.ipynb', '_config.yml', '_toc.yml', 'requirements-book.txt') }}
           restore-keys: |
             jb-
 
       - name: Build Jupyter Book
-        run: jupyter-book build . --all
+        run: jupyter-book build .
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
