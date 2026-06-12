@@ -1,13 +1,9 @@
-# ── Book Build Only (used by GitHub Actions CI) ────────────
-# Classic Jupyter Book (Sphinx-based). Must stay <1.0 —
-# jupyter-book 1.x is the new myst-cli engine with a different config format.
-jupyter-book>=0.15.0,<1.0.0
+# ── Book Build Only (GitHub Actions CI) ────────────────────
+# Classic Jupyter Book 0.15.x — Sphinx 4/5 based.
+# Stay <1.0.0 — jupyter-book 1.x is the myst-cli engine (different config).
+jupyter-book==0.15.1
 
-# Sphinx extensions
+# Sphinx extensions — versions pinned to Sphinx 5.x compatibility
 sphinx-togglebutton>=0.3.2
 sphinx-copybutton>=0.5.2
-sphinx-design>=0.5.0
-
-# JupyterLite — adds "Launch" buttons on notebook pages
-jupyterlite-sphinx>=0.13.0
-jupyterlite-pyodide-kernel>=0.3.0
+sphinx-design>=0.5.0,<0.6.0

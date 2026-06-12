@@ -81,7 +81,6 @@ sphinx:
     - sphinx_togglebutton
     - sphinx_copybutton
     - sphinx_design
-    - jupyterlite_sphinx
   config:
     copybutton_exclude: ".linenos, .gp, .go, .c1, .err"
     togglebutton_hint: "Show solution"
