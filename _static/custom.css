@@ -1,0 +1,132 @@
+/* ──────────────────────────────────────────────────────────
+   Data Science: An Interactive Textbook — Custom Styles
+   ────────────────────────────────────────────────────────── */
+
+/* ── Typography ──────────────────────────────────────────── */
+:root {
+  --ds-blue:   #2962ff;
+  --ds-indigo: #4a00e0;
+  --ds-teal:   #00796b;
+  --ds-amber:  #ff8f00;
+  --ds-red:    #c62828;
+}
+
+/* ── Book Banner ─────────────────────────────────────────── */
+.book-banner {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Chapter Index Cards ─────────────────────────────────── */
+.sd-card {
+  border-radius: 8px !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.sd-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-2px);
+}
+
+/* ── Learning Objectives ─────────────────────────────────── */
+.objectives-box {
+  background: #e8f4fd;
+  border-left: 4px solid var(--ds-blue);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+
+/* ── Topic Cards in Chapter Index ───────────────────────── */
+.topic-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: #fafafa;
+}
+
+/* ── Code Cells ──────────────────────────────────────────── */
+.cell_input .highlight {
+  border-radius: 4px;
+}
+
+div.highlight pre {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* ── Admonitions ─────────────────────────────────────────── */
+.admonition.definition {
+  border-color: var(--ds-indigo);
+}
+
+.admonition.theorem {
+  border-color: var(--ds-teal);
+  background: #e0f2f1;
+}
+
+.admonition.intuition {
+  border-color: var(--ds-amber);
+  background: #fff8e1;
+}
+
+/* ── Exercise / Solution blocks ──────────────────────────── */
+.toggle-details summary {
+  background: #f5f5f5;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ds-blue);
+}
+
+/* ── Progress Indicator (chapter nav) ───────────────────── */
+.chapter-meta {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.chapter-meta span::before {
+  margin-right: 0.3rem;
+}
+
+/* ── Math equation numbering ─────────────────────────────── */
+.math-block {
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+/* ── Responsive Tables ───────────────────────────────────── */
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  font-size: 0.9rem;
+}
+
+/* ── Notebook launch button ──────────────────────────────── */
+.launch-buttons {
+  margin-bottom: 1rem;
+}
+
+/* ── Dark mode adjustments ───────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .objectives-box {
+    background: #1a2a3a;
+    border-left-color: #5c9eff;
+  }
+  .topic-card {
+    background: #1e1e1e;
+    border-color: #333;
+  }
+  .toggle-details summary {
+    background: #2a2a2a;
+    color: #7ab8ff;
+  }
+}

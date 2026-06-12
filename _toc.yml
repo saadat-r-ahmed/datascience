@@ -1,0 +1,54 @@
+# ──────────────────────────────────────────────────────────
+# Table of Contents
+# ──────────────────────────────────────────────────────────
+# Structure: When a chapter is being written, expand its
+# entry with a `sections:` block listing topic files.
+# Each topic is either a .md (reading) or .ipynb (notebook).
+#
+# Example:
+#   - file: chapters/01_python_foundations/index
+#     sections:
+#       - file: chapters/01_python_foundations/01_variables_types
+#       - file: chapters/01_python_foundations/02_control_flow
+# ──────────────────────────────────────────────────────────
+
+format: jb-book
+root: intro
+
+parts:
+
+  # ── Part I: Python Foundations ───────────────────────────
+  - caption: "Part I: Python Foundations"
+    chapters:
+      - file: chapters/01_python_foundations/index
+      - file: chapters/02_numpy/index
+
+  # ── Part II: Working with Data ───────────────────────────
+  - caption: "Part II: Working with Data"
+    chapters:
+      - file: chapters/03_pandas/index
+      - file: chapters/04_eda/index
+      - file: chapters/05_visualization/index
+
+  # ── Part III: Statistical Foundations ───────────────────
+  - caption: "Part III: Statistical Foundations"
+    chapters:
+      - file: chapters/06_probability_statistics/index
+
+  # ── Part IV: Machine Learning ────────────────────────────
+  - caption: "Part IV: Machine Learning"
+    chapters:
+      - file: chapters/07_ml_fundamentals/index
+      - file: chapters/08_regression/index
+      - file: chapters/09_classification/index
+      - file: chapters/10_model_evaluation/index
+      - file: chapters/11_feature_engineering/index
+      - file: chapters/12_ensemble_methods/index
+
+  # ── Part V: Advanced Topics ──────────────────────────────
+  - caption: "Part V: Advanced Topics"
+    chapters:
+      - file: chapters/13_unsupervised/index
+      - file: chapters/14_nlp/index
+      - file: chapters/15_deep_learning/index
+      - file: chapters/16_time_series/index

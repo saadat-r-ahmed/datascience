@@ -1,0 +1,94 @@
+# ──────────────────────────────────────────────────────────
+# Data Science: An Interactive Textbook
+# Jupyter Book Configuration
+# ──────────────────────────────────────────────────────────
+
+title: "Data Science: An Interactive Textbook"
+author: Maxwell
+copyright: "2026"
+
+exclude_patterns:
+  - _build
+  - Thumbs.db
+  - .DS_Store
+  - "**.ipynb_checkpoints"
+  - "_templates/**"
+
+# ── Execution ──────────────────────────────────────────────
+execute:
+  execute_notebooks: "off"
+  timeout: 120
+  allow_errors: false
+  stderr_output: remove
+
+# ── Bibliography ───────────────────────────────────────────
+bibtex_bibfiles:
+  - references.bib
+
+# ── Repository ─────────────────────────────────────────────
+repository:
+  url: https://github.com/saadat-r-ahmed/datascience-book
+  path_to_book: .
+  branch: main
+
+# ── HTML Output ────────────────────────────────────────────
+html:
+  use_issues_button: true
+  use_repository_button: true
+  use_edit_page_button: true
+  home_page_in_navbar: true
+  favicon: _static/favicon.png
+  announcement: >
+    This book is actively being written. All code runs directly in your
+    browser — no Python installation required.
+  extra_footer: |
+    <p>
+      Built with <a href="https://jupyterbook.org">Jupyter Book</a> &amp;
+      <a href="https://mystmd.org">MyST Markdown</a>.
+      Interactive code via <a href="https://jupyterlite.readthedocs.io">JupyterLite</a>.
+    </p>
+  extra_navbar: ""
+
+# ── Interactive Code (JupyterLite) ─────────────────────────
+launch_buttons:
+  notebook_interface: "jupyterlab"
+  jupyterlite: true
+  thebe: false
+
+# ── MyST Markdown ──────────────────────────────────────────
+parse:
+  myst_enable_extensions:
+    - amsmath
+    - colon_fence
+    - deflist
+    - dollarmath
+    - fieldlist
+    - html_admonition
+    - html_image
+    - linkify
+    - replacements
+    - smartquotes
+    - strikethrough
+    - substitution
+    - tasklist
+  myst_url_schemes: [mailto, http, https]
+  myst_dmath_double_inline: true
+  myst_heading_anchors: 3
+
+# ── Sphinx Extensions & Config ─────────────────────────────
+sphinx:
+  extra_extensions:
+    - sphinx_togglebutton
+    - sphinx_copybutton
+    - sphinx_design
+    - jupyterlite_sphinx
+  config:
+    copybutton_exclude: ".linenos, .gp, .go, .c1, .err"
+    togglebutton_hint: "Show solution"
+    togglebutton_hint_hide: "Hide solution"
+    nb_execution_timeout: 120
+    nb_merge_streams: true
+    html_show_sourcelink: false
+    suppress_warnings:
+      - "myst.header"
+      - "mystnb.unknown_mime_type"

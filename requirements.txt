@@ -1,0 +1,43 @@
+# ── Book Build ─────────────────────────────────────────────
+jupyter-book>=1.0.0
+myst-nb>=1.1.0
+sphinx-togglebutton>=0.3.2
+sphinx-copybutton>=0.5.2
+sphinx-design>=0.6.0
+jupyterlite-sphinx>=0.14.0
+jupyterlite-pyodide-kernel>=0.3.0
+
+# ── Data Science Core ──────────────────────────────────────
+numpy>=1.26.0
+pandas>=2.1.0
+scipy>=1.11.0
+statsmodels>=0.14.0
+
+# ── Visualization ──────────────────────────────────────────
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# ── Machine Learning ───────────────────────────────────────
+scikit-learn>=1.4.0
+xgboost>=2.0.0
+lightgbm>=4.1.0
+
+# ── Deep Learning ──────────────────────────────────────────
+torch>=2.1.0
+torchvision>=0.16.0
+
+# ── NLP ────────────────────────────────────────────────────
+nltk>=3.8.0
+transformers>=4.36.0
+
+# ── Time Series ────────────────────────────────────────────
+prophet>=1.1.5
+
+# ── Unsupervised / Dimensionality Reduction ────────────────
+umap-learn>=0.5.5
+
+# ── Notebooks ──────────────────────────────────────────────
+ipywidgets>=8.1.0
+ipympl>=0.9.3
+jupyterlab>=4.0.0
