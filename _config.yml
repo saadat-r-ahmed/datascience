@@ -27,7 +27,7 @@ bibtex_bibfiles:
 
 # ── Repository ─────────────────────────────────────────────
 repository:
-  url: https://github.com/saadat-r-ahmed/datascience-book
+  url: https://github.com/saadat-r-ahmed/datascience
   path_to_book: .
   branch: main
 
