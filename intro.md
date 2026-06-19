@@ -15,9 +15,9 @@ sd_hide_title: true
 
 # Data Science: An Interactive Textbook
 
-> **From first principles to production-ready practice** — every concept is runnable, every formula is buildable, every model is yours to explore.
+Welcome to the **Data Science Interactive Online Book** — a structured, asynchronous learning resource built for self-paced study.
 
-This is a living, interactive textbook. Code cells run directly in your browser via [JupyterLite](https://jupyterlite.readthedocs.io) — no installation, no setup. Open any notebook, edit the code, and see results immediately.
+> **This book is actively being written.** All code runs directly in your browser — no Python installation required.
 
 ---
 
@@ -217,13 +217,4 @@ Decomposition, ARIMA, ML-based forecasting, and evaluation metrics.
 
 ## Running Code
 
-Every notebook page has a **Launch** button (rocket icon) at the top. Clicking it opens the notebook in JupyterLite — a full Python environment running entirely in your browser using WebAssembly.
-
-You can also clone the repository and run notebooks locally:
-
-```bash
-git clone https://github.com/USERNAME/datascience-book.git
-cd datascience-book
-pip install -r requirements.txt
-jupyter lab
-```
+Every notebook page has a **Launch** button (rocket icon) at the top. Clicking it opens the notebook in JupyterLite — a full Python environment running entirely in your browser using WebAssembly. No installation required.

@@ -4,7 +4,7 @@
 # ──────────────────────────────────────────────────────────
 
 title: "Data Science: An Interactive Textbook"
-author: Maxwell
+author: Saadat R. Ahmed
 copyright: "2026"
 
 exclude_patterns:
@@ -49,11 +49,8 @@ html:
     </p>
   extra_navbar: ""
 
-# ── Interactive Code (JupyterLite) ─────────────────────────
-launch_buttons:
-  notebook_interface: "jupyterlab"
-  jupyterlite: true
-  thebe: false
+# ── Interactive Code ───────────────────────────────────────
+# launch_buttons handled via custom JS (_static/jupyterlite-launch.js)
 
 # ── MyST Markdown ──────────────────────────────────────────
 parse:
@@ -81,7 +78,11 @@ sphinx:
     - sphinx_togglebutton
     - sphinx_copybutton
     - sphinx_design
+    - jupyterlite_sphinx
   config:
+    jupyterlite_contents:
+      - "chapters/01_data_exploration"
+    html_js_files: []
     copybutton_exclude: ".linenos, .gp, .go, .c1, .err"
     togglebutton_hint: "Show solution"
     togglebutton_hint_hide: "Hide solution"
