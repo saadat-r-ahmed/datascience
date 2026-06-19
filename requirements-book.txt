@@ -7,3 +7,4 @@ jupyter-book==0.15.1
 # Extra Sphinx extensions (compatible with Sphinx 5.x)
 sphinx-togglebutton>=0.3.2
 sphinx-copybutton>=0.5.2
+jupyterlite-sphinx>=0.9.3,<0.13
