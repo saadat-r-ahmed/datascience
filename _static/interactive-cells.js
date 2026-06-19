@@ -358,7 +358,14 @@ _rstr  = repr(_rv) if (_rv is not None and _rhtml is None) else None
       .then(function (py) {
         pyodide = py;
         setBadge('⏳ Installing packages…', '#555', false);
-        return pyodide.loadPackage(['pandas', 'numpy', 'matplotlib', 'seaborn', 'scipy']);
+        return pyodide.loadPackage(['pandas', 'numpy', 'matplotlib', 'scipy', 'micropip']);
+      })
+      .then(function () {
+        // seaborn isn't in Pyodide's bundled package set — install from PyPI.
+        setBadge('⏳ Installing seaborn…', '#555', false);
+        return pyodide.runPythonAsync(
+          "import micropip\nawait micropip.install('seaborn')"
+        );
       })
       .then(function () {
         setBadge('⏳ Setting up environment…', '#555', false);
