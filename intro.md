@@ -15,9 +15,19 @@ sd_hide_title: true
 
 # Data Science: An Interactive Textbook
 
-Welcome to the **Data Science Interactive Online Book** — a structured, asynchronous learning resource built for self-paced study.
+*by Saadat Rafid Ahmed*
 
-> **This book is actively being written.** All code runs directly in your browser — no Python installation required.
+A structured, self-paced introduction to data science. Read the theory, then run and modify the code directly in your browser — no Python installation required.
+
+```{admonition} Work in progress
+:class: note
+This book is actively being written, with chapters added and revised regularly.
+```
+
+```{admonition} Found an issue?
+:class: tip
+Spotted a typo, broken link, incorrect explanation, or code that doesn't run? Report it to **[saadat.ahmed@bracu.ac.bd](mailto:saadat.ahmed@bracu.ac.bd)**.
+```
 
 ---
 
@@ -27,15 +37,15 @@ Welcome to the **Data Science Interactive Online Book** — a structured, asynch
 :gutter: 2
 
 :::{grid-item-card} 📖 Reading
-Theory pages explain concepts with precise language, equations, and visualizations. Use these to build your mental model before experimenting.
+Theory pages explain concepts with precise language, equations, and visualizations — build your mental model before experimenting.
 :::
 
 :::{grid-item-card} 💻 Interactive Code
-Notebook pages contain live code. Click the **Launch** button at the top of any notebook to open it in JupyterLite — run cells, modify experiments, and explore.
+Notebook pages contain live code. Click **Launch** at the top of any notebook to open it in JupyterLite and run cells in your browser.
 :::
 
 :::{grid-item-card} 🎞 Slides
-Each chapter includes slide decks for lecture review. Every slide page can be converted to a presentation by running `jupyter nbconvert --to slides`.
+Each chapter includes slide decks for lecture review, convertible to presentations with `jupyter nbconvert --to slides`.
 :::
 ::::
 
@@ -217,4 +227,4 @@ Decomposition, ARIMA, ML-based forecasting, and evaluation metrics.
 
 ## Running Code
 
-Every notebook page has a **Launch** button (rocket icon) at the top. Clicking it opens the notebook in JupyterLite — a full Python environment running entirely in your browser using WebAssembly. No installation required.
+Every notebook page has a **Launch** button (rocket icon) at the top. Clicking it opens the notebook in JupyterLite — a full Python environment running entirely in your browser via WebAssembly. No installation required.

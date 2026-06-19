@@ -358,7 +358,7 @@ _rstr  = repr(_rv) if (_rv is not None and _rhtml is None) else None
       .then(function (py) {
         pyodide = py;
         setBadge('⏳ Installing packages…', '#555', false);
-        return pyodide.loadPackage(['pandas', 'numpy', 'matplotlib']);
+        return pyodide.loadPackage(['pandas', 'numpy', 'matplotlib', 'seaborn', 'scipy']);
       })
       .then(function () {
         setBadge('⏳ Setting up environment…', '#555', false);
@@ -370,12 +370,13 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import seaborn as sns
 from collections import Counter
 import math, io, base64
 
 _cell_ns = {
     '__builtins__': builtins,
-    'pd': pd, 'np': np, 'plt': plt,
+    'pd': pd, 'np': np, 'plt': plt, 'sns': sns,
     'Counter': Counter, 'math': math,
     'io': io, 'base64': base64,
 }
