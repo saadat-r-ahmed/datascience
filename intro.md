@@ -64,7 +64,7 @@ The book primarily follows the course structure of CSE437, Data Science.
 :link: chapters/01_data_exploration/index
 :link-type: doc
 
-Fundamentals and data preprocessing — descriptive statistics, inspecting and cleaning raw data (missing values, impossible entries, encoding issues), and detecting and treating outliers.
+Fundamentals and data preprocessing — descriptive statistics, inspecting and cleaning raw data (missing values, impossible entries, encoding issues), detecting and treating outliers, and transforming features through normalization, standardization, and scaling.
 :::
 ::::
 

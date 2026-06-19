@@ -25,3 +25,4 @@ parts:
           - file: chapters/01_data_exploration/statistics
           - file: chapters/01_data_exploration/data_preprocessing
           - file: chapters/01_data_exploration/outlier_detection
+          - file: chapters/01_data_exploration/data_transformation
