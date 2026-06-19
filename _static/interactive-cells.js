@@ -3,13 +3,14 @@
  *
  * Transforms Jupyter Book code cells into editable, runnable cells powered by
  * Pyodide (WebAssembly Python). Kernel loads automatically in the background.
- * Students can edit any cell and press ▶ Run (or Shift+Enter) to execute.
- * No server required.
+ * - ▶ Run button or Shift+Enter to execute
+ * - Hide/Show toggle to collapse code block
+ * - Auto-height editor (no scroll), max 150ch wide
+ * - Output styled for both light and dark mode
  */
 document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
-  // Guard against double-execution (Jupyter Book auto-scans _static/*.js)
   if (window._interactiveCellsLoaded) return;
   window._interactiveCellsLoaded = true;
 
@@ -26,32 +27,84 @@ document.addEventListener('DOMContentLoaded', function () {
     if (onerror) s.onerror = onerror;
     document.head.appendChild(s);
   }
-
   function loadCSS(href) {
     var l = document.createElement('link');
     l.rel = 'stylesheet'; l.href = href;
     document.head.appendChild(l);
   }
-
+  function injectStyle(css) {
+    var s = document.createElement('style');
+    s.textContent = css;
+    document.head.appendChild(s);
+  }
   function esc(s) {
     return String(s)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
   }
-
   function siteRoot() {
-    // Walks up from current page path to find the book root
-    var parts = window.location.pathname.split('/').filter(function(p){ return p !== ''; });
-    // Remove the filename
+    var parts = window.location.pathname.split('/').filter(function (p) { return p !== ''; });
     parts.pop();
-    // Remove each directory segment to get back to root
     var depth = parts.length;
     for (var i = 0; i < depth; i++) parts.pop();
     return window.location.origin + '/';
   }
 
-  // ── Status badge (fixed bottom-right) ───────────────────────────────────
+  // ── Inject component styles ──────────────────────────────────────────────
+  injectStyle([
+    // Auto-expanding CodeMirror (no fixed height, no vertical scroll)
+    '.ic-editor .CodeMirror { height: auto !important; min-height: 2em; }',
+    '.ic-editor .CodeMirror-scroll { overflow-y: hidden !important; overflow-x: auto !important; }',
+    '.ic-editor .CodeMirror-vscrollbar { display: none !important; }',
+
+    // Output area: neutral background + correct text in light AND dark mode
+    '.ic-output {',
+    '  margin-top: 6px;',
+    '  padding: 8px 14px;',
+    '  border-left: 3px solid #e65100;',
+    '  border-radius: 0 4px 4px 0;',
+    '  font-family: monospace;',
+    '  font-size: 0.88em;',
+    '  white-space: pre-wrap;',
+    '  overflow-x: auto;',
+    '  background: #f4f4f4;',
+    '  color: #1a1a1a;',
+    '}',
+    // PyData Sphinx Theme dark mode uses html[data-theme="dark"]
+    'html[data-theme="dark"] .ic-output {',
+    '  background: #1e1e2e;',
+    '  color: #cdd6f4;',
+    '}',
+
+    // Tables inside output
+    '.ic-output table { border-collapse: collapse; font-size: .85em; margin: 4px 0; color: inherit; }',
+    '.ic-output th, .ic-output td { border: 1px solid rgba(128,128,128,.4); padding: 3px 10px; text-align: right; }',
+    '.ic-output th { font-weight: 600; background: rgba(128,128,128,.12); }',
+    '.ic-output tr:nth-child(even) { background: rgba(128,128,128,.06); }',
+
+    // Pre inside output — inherit color, no extra margins
+    '.ic-output pre { margin: 0; color: inherit; background: transparent; padding: 0; }',
+
+    // Error text in output
+    '.ic-error { color: #e06c75; }',
+    'html[data-theme="dark"] .ic-error { color: #f38ba8; }',
+
+    // Hide/Show button
+    '.ic-toggle {',
+    '  background: none;',
+    '  border: 1px solid rgba(128,128,128,.4);',
+    '  border-radius: 4px;',
+    '  padding: 2px 10px;',
+    '  font-size: 0.74rem;',
+    '  cursor: pointer;',
+    '  color: #888;',
+    '  line-height: 1.4;',
+    '}',
+    '.ic-toggle:hover { background: rgba(128,128,128,.1); }',
+  ].join('\n'));
+
+  // ── Status badge (fixed bottom-right) ────────────────────────────────────
   var badge = document.createElement('div');
   Object.assign(badge.style, {
     position:     'fixed',
@@ -66,21 +119,17 @@ document.addEventListener('DOMContentLoaded', function () {
     background:   '#555',
     boxShadow:    '0 2px 8px rgba(0,0,0,.3)',
     transition:   'opacity .6s',
-    cursor:       'default',
   });
   badge.textContent = '⏳ Loading Python…';
   document.body.appendChild(badge);
 
-  var pyodide = null;
-  var kernelReady = false;
+  var pyodide = null, kernelReady = false;
 
   function setBadge(text, color, autohide) {
     badge.style.opacity  = '1';
     badge.style.background = color;
     badge.textContent    = text;
-    if (autohide) {
-      setTimeout(function () { badge.style.opacity = '0'; }, 4000);
-    }
+    if (autohide) setTimeout(function () { badge.style.opacity = '0'; }, 4000);
   }
 
   // ── Wire each code cell ──────────────────────────────────────────────────
@@ -90,113 +139,113 @@ document.addEventListener('DOMContentLoaded', function () {
     var pre = cell.querySelector('pre');
     if (!pre) return;
 
-    // Extract plain text (strips Pygments <span> tags)
-    var code = pre.textContent.replace(/^\n/, '');  // strip leading newline
+    var code = pre.textContent.replace(/^\n/, '');
 
-    // The structure is: .cell_input > .highlight-ipython3 > .highlight > pre
-    // We hide the whole highlight block and insert CodeMirror before it.
+    // Hide the highlight wrapper (direct child of .cell_input)
     var highlightBlock = cell.querySelector('.highlight-ipython3') ||
                          cell.querySelector('.highlight') ||
                          pre.parentNode;
     highlightBlock.style.display = 'none';
 
-    // CodeMirror host
+    // ── Top bar: Hide/Show toggle (right-aligned) ──────────────────────────
+    var topBar = document.createElement('div');
+    topBar.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:3px;';
+
+    var toggleBtn = document.createElement('button');
+    toggleBtn.className   = 'ic-toggle';
+    toggleBtn.textContent = '▲ Hide code';
+    topBar.appendChild(toggleBtn);
+    cell.insertBefore(topBar, highlightBlock);
+
+    // ── CodeMirror host (max 150ch wide) ───────────────────────────────────
     var cmWrap = document.createElement('div');
+    cmWrap.className = 'ic-editor';
     cmWrap.style.cssText = [
       'border:1px solid #d0d0d0',
       'border-radius:4px',
       'overflow:hidden',
       'font-size:0.88em',
       'line-height:1.5',
+      'max-width:min(100%, 150ch)',
     ].join(';');
-    // Insert before the hidden highlight block (both are children of .cell_input)
     cell.insertBefore(cmWrap, highlightBlock);
 
-    // Toolbar row: Run button + status indicator
+    // ── Bottom toolbar: Run + cell status ─────────────────────────────────
     var toolbar = document.createElement('div');
-    toolbar.style.cssText = [
-      'display:flex',
-      'align-items:center',
-      'gap:8px',
-      'margin-top:6px',
-    ].join(';');
+    toolbar.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:6px;';
 
     var runBtn = document.createElement('button');
     runBtn.innerHTML = '&#9654; Run';
     runBtn.style.cssText = [
-      'background:#e65100',
-      'color:#fff',
-      'border:none',
-      'border-radius:4px',
-      'padding:4px 18px',
-      'cursor:pointer',
-      'font-size:0.82rem',
-      'font-weight:700',
+      'background:#e65100', 'color:#fff', 'border:none',
+      'border-radius:4px', 'padding:4px 18px',
+      'cursor:pointer', 'font-size:0.82rem', 'font-weight:700',
       'transition:background .15s',
     ].join(';');
-    runBtn.onmouseover = function() { if (!runBtn.disabled) runBtn.style.background = '#bf360c'; };
-    runBtn.onmouseout  = function() { if (!runBtn.disabled) runBtn.style.background = '#e65100'; };
+    runBtn.onmouseover = function () { if (!runBtn.disabled) runBtn.style.background = '#bf360c'; };
+    runBtn.onmouseout  = function () { if (!runBtn.disabled) runBtn.style.background = '#e65100'; };
 
     var cellStatus = document.createElement('span');
     cellStatus.style.cssText = 'font-size:0.78rem;color:#888;';
 
     toolbar.appendChild(runBtn);
     toolbar.appendChild(cellStatus);
-    cell.appendChild(toolbar);
+    cell.insertBefore(toolbar, highlightBlock);
 
-    // Live output panel
+    // ── Live output panel ──────────────────────────────────────────────────
     var liveOut = document.createElement('div');
-    liveOut.style.cssText = [
-      'display:none',
-      'margin-top:6px',
-      'padding:8px 12px',
-      'border-left:3px solid #e65100',
-      'background:#fffde7',
-      'font-family:monospace',
-      'font-size:0.88em',
-      'white-space:pre-wrap',
-      'overflow-x:auto',
-      'border-radius:0 4px 4px 0',
-    ].join(';');
-    cell.appendChild(liveOut);
+    liveOut.className    = 'ic-output';
+    liveOut.style.display = 'none';
+    cell.insertBefore(liveOut, highlightBlock);
+
+    // ── Hide/Show toggle logic ─────────────────────────────────────────────
+    var collapsed = false;
+    toggleBtn.addEventListener('click', function () {
+      collapsed = !collapsed;
+      cmWrap.style.display   = collapsed ? 'none' : '';
+      toolbar.style.display  = collapsed ? 'none' : '';
+      // Only show output when not collapsed AND it has content
+      if (collapsed) {
+        liveOut.style.display = 'none';
+      } else if (liveOut._hasContent) {
+        liveOut.style.display = 'block';
+      }
+      toggleBtn.textContent = collapsed ? '▼ Show code' : '▲ Hide code';
+    });
 
     var entry = {
-      host:       cmWrap,
-      code:       code,
-      cm:         null,
-      btn:        runBtn,
-      status:     cellStatus,
-      liveOut:    liveOut,
+      host:    cmWrap,
+      code:    code,
+      cm:      null,
+      btn:     runBtn,
+      status:  cellStatus,
+      liveOut: liveOut,
     };
     editorList.push(entry);
-
     runBtn.addEventListener('click', function () { runCell(entry); });
   });
 
   // ── Execute a cell ───────────────────────────────────────────────────────
   function runCell(entry) {
-    var liveOut = entry.liveOut;
-    var btn     = entry.btn;
-    var status  = entry.status;
+    var liveOut = entry.liveOut, btn = entry.btn, status = entry.status;
 
     liveOut.style.display = 'block';
+    liveOut._hasContent   = true;
 
     if (!kernelReady) {
-      liveOut.innerHTML = '<span style="color:#888">⏳ Kernel still loading — please wait a moment then try again.</span>';
+      liveOut.innerHTML = '⏳ Kernel still loading — try again in a moment.';
       return;
     }
 
     var code = entry.cm ? entry.cm.getValue() : entry.code;
     if (!code.trim()) {
-      liveOut.innerHTML = '<span style="color:#888">✓ (empty cell)</span>';
+      liveOut.innerHTML = '<span style="opacity:.6">✓ (empty cell)</span>';
       return;
     }
 
-    btn.innerHTML  = '⏳';
-    btn.disabled   = true;
-    btn.style.background = '#aaa';
-    status.textContent   = 'Running…';
-    liveOut.innerHTML    = '<span style="color:#888">Running…</span>';
+    btn.innerHTML = '⏳'; btn.disabled = true; btn.style.background = '#aaa';
+    status.textContent = 'Running…';
+    liveOut.innerHTML  = '<span style="opacity:.6">Running…</span>';
 
     var stdout = '';
     pyodide.setStdout({ batched: function (s) { stdout += s + '\n'; } });
@@ -229,7 +278,7 @@ for _fn in list(_plt.get_fignums()):
         _buf.seek(0)
         _figs += '<img src="data:image/png;base64,' + _b64.b64encode(_buf.read()).decode() + '" style="max-width:100%;display:block;margin:6px 0">'
     except Exception as _fe:
-        _figs += '<pre style="color:#c62828">Figure error: ' + str(_fe) + '</pre>'
+        _figs += '<pre>Figure error: ' + str(_fe) + '</pre>'
     finally:
         _plt.close(_fn)
 
@@ -245,33 +294,28 @@ _rstr  = repr(_rv) if (_rv is not None and _rhtml is None) else None
 
       var html = '';
       if (stdout.trim()) {
-        html += '<pre style="margin:0 0 6px;color:#222">' + esc(stdout.trimEnd()) + '</pre>';
+        html += '<pre>' + esc(stdout.trimEnd()) + '</pre>';
       }
       if (rhtml) {
         html += '<div style="overflow-x:auto">' + rhtml + '</div>';
       } else if (rstr && rstr !== 'None') {
-        html += '<pre style="margin:0;color:#222">' + esc(rstr) + '</pre>';
+        html += '<pre>' + esc(rstr) + '</pre>';
       }
       html += figs;
 
-      liveOut.innerHTML = html || '<span style="color:#888">✓ (no output)</span>';
-      btn.innerHTML = '&#9654; Run';
-      btn.disabled  = false;
-      btn.style.background = '#e65100';
-      status.textContent   = '✓ done';
-      setTimeout(function(){ status.textContent = ''; }, 3000);
+      liveOut.innerHTML = html || '<span style="opacity:.6">✓ (no output)</span>';
+      btn.innerHTML = '&#9654; Run'; btn.disabled = false; btn.style.background = '#e65100';
+      status.textContent = '✓ done';
+      setTimeout(function () { status.textContent = ''; }, 3000);
 
     }).catch(function (err) {
       var msg = err.message || String(err);
-      // Show only the traceback part if available (cut off Pyodide boilerplate)
       var tbStart = msg.indexOf('Traceback');
       if (tbStart !== -1) msg = msg.slice(tbStart);
-      liveOut.innerHTML = '<pre style="color:#c62828;margin:0">' + esc(msg) + '</pre>';
-      btn.innerHTML = '&#9654; Run';
-      btn.disabled  = false;
-      btn.style.background = '#e65100';
-      status.textContent   = '✗ error';
-      setTimeout(function(){ status.textContent = ''; }, 5000);
+      liveOut.innerHTML = '<pre class="ic-error">' + esc(msg) + '</pre>';
+      btn.innerHTML = '&#9654; Run'; btn.disabled = false; btn.style.background = '#e65100';
+      status.textContent = '✗ error';
+      setTimeout(function () { status.textContent = ''; }, 5000);
     });
   }
 
@@ -286,6 +330,7 @@ _rstr  = repr(_rv) if (_rv is not None and _rhtml is None) else None
         indentUnit:     4,
         tabSize:        4,
         indentWithTabs: false,
+        lineWrapping:   false,
         viewportMargin: Infinity,
         extraKeys: {
           'Shift-Enter': function () { runCell(e); },
@@ -303,21 +348,12 @@ _rstr  = repr(_rv) if (_rv is not None and _rhtml is None) else None
   loadCSS(CM_CDN + 'codemirror.min.css');
   loadCSS(CM_CDN + 'theme/monokai.min.css');
 
-  // Inject minimal table styles for DataFrame HTML output
-  loadCSS('data:text/css,' + encodeURIComponent([
-    '.cell_input table{border-collapse:collapse;font-size:.85em;margin:4px 0}',
-    '.cell_input th,.cell_input td{border:1px solid #ccc;padding:4px 10px;text-align:right}',
-    '.cell_input th{background:#f5f5f5;font-weight:600}',
-    '.cell_input tr:nth-child(even){background:#fafafa}',
-  ].join('')));
-
   loadScript(CM_CDN + 'codemirror.min.js', function () {
     loadScript(CM_CDN + 'mode/python/python.min.js', initEditors);
   });
 
   function startPyodide() {
     setBadge('⏳ Loading Python (first visit ~30s)…', '#555', false);
-
     loadPyodide({ indexURL: PYODIDE_CDN })
       .then(function (py) {
         pyodide = py;
@@ -344,14 +380,13 @@ _cell_ns = {
     'io': io, 'base64': base64,
 }
 
-# Override plt.show() so student code runs without warnings and figures stay open
-# for our capture loop to pick them up after each cell executes.
+# No-op so student cells can call plt.show() without warnings;
+# figures stay open and are captured by our render loop.
 plt.show = lambda *a, **kw: None
 
-# Pre-fetch the dataset so cells that do pd.read_csv('flawed_dataset.csv') work
 from pyodide.http import pyfetch
 try:
-    _r = await pyfetch(_csv_url)
+    _r   = await pyfetch(_csv_url)
     _raw = await _r.bytes()
     with open('flawed_dataset.csv', 'wb') as _f:
         _f.write(_raw)
